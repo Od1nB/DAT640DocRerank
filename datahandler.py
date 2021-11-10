@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import csv
 import random
+import pandas as pd
 
 
 def load_queries(path):
@@ -75,8 +76,8 @@ def create_training(max_length_title, max_length_body, limit):
 
     # want on format [query,text,label]
     # use the relevant doc and one none relevant for training?
-    data = []
     i = 0
+    df = pd.DataFrame(columns=['Query','Text','Label'])
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
         doc_neg = qrels[qid][0]
@@ -91,13 +92,12 @@ def create_training(max_length_title, max_length_body, limit):
         nt = neg_text['title'][:max_length_title] + " " + neg_text['body'][:max_length_body]
         pos_text = load_document(doc_lookup[doc_pos])
         pt = pos_text['title'][:max_length_title] + " " + pos_text['body'][:max_length_body]
-        data.append([query, nt, 0])
-        data.append([query, pt, 1])
+        df = df.append({'Query' : query, 'Text' : nt, 'Label': 0}, ignore_index=True)
+        df = df.append({'Query' : query, 'Text' : pt, 'Label': 1}, ignore_index=True)
         if i > limit:
-            return data
+            return df
         i += 1
-
-    return data
+    return df
 
 
 def create_test(max_length_title, max_length_body):
