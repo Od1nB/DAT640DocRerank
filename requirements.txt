@@ -1,0 +1,6 @@
+tqdm
+tensorflow_text
+tensorflow_hub
+tensorflow >= 2.5.0
+sentencepiece
+pandas
