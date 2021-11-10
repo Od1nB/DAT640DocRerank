@@ -1,5 +1,5 @@
 # DAT640DocRerank
-Project description:
+## Project description:
 > MS Marco Document re-ranking [MS MARCO](https://microsoft.github.io/msmarco/)
 >  * Given a candidate top-100 document as retrieved by BM25, re-rank documents by relevance. This task has also run as part of the TREC 2019 Deep Learning track.
 >  * Document collection: MS MARCO document corpus (3.2M documents, 22GB)
