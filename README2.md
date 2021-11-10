@@ -6,6 +6,10 @@ Dataset: [here](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019), un
 
 data folder should have subfolders dev, test and train where the data for each category is stored. Document collection and document lookup file should be in the main data folder.
 
+### Install Guide TensorFlow GPU
+Guide to installing tensorflow for GPU processing: [link](https://www.tensorflow.org/install/gpu)
+Just seems like we to install the required drivers and add them to path, for windows use (NB: seems like we need NVIDIA GPU)
+
 ### Albert resources
 
 Fine-tuning Albert (google colab): [link](https://colab.research.google.com/github/NadirEM/nlp-notebooks/blob/master/Fine_tune_ALBERT_sentence_pair_classification.ipynb)
