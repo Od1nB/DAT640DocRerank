@@ -19,7 +19,8 @@ data folder should have subfolders dev, test and train where the data for each c
 ### Install Guide TensorFlow GPU
 Guide to installing tensorflow for GPU processing: [link](https://www.tensorflow.org/install/gpu)
 Just seems like we to install the required drivers and add them to path, for windows use (NB: seems like we need NVIDIA GPU)
-or in this markdown [GPUINSTALL](GPUINSTALL.md)
+or in this markdown:
+[GPUINSTALL.md](GPUINSTALL.md)
 
 
 ### Albert resources
