@@ -117,6 +117,7 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
+#Data files
 data/
 Data/
 
@@ -130,3 +131,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#VS code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
