@@ -39,3 +39,7 @@ Code:[here](https://colab.research.google.com/drive/1PQ-tpKUHoxNSR-gmPJpYxpiH8JZ
 ### Questions
 - Find out how test data works, multiple documents are given the same rank.
 - What is the "Relevance judgments for evaluation topics" link?, qid does not match qid from dataset
+
+
+### Trec eval tool explanation
+[here](http://www.rafaelglater.com/en/post/learn-how-to-use-trec_eval-to-evaluate-your-information-retrieval-system)
