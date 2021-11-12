@@ -108,7 +108,8 @@ def create_test(max_length_title, max_length_body, limit):
     # want on format [qid,docid,query,text,label]
     # use the relevant doc and one none relevant for training?
     i = 0
-    df = pd.DataFrame(columns=['Qid','Docid','Query','Text','Label'])
+    q = 0
+    dt = [["","","","",0]] * 579300
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
         for doc in docs:
@@ -116,11 +117,12 @@ def create_test(max_length_title, max_length_body, limit):
             query = queries[qid]
             text = load_document(doc_lookup[doc])
             nt = text['title'][:max_length_title] + " " + text['body'][:max_length_body]
-            df = df.append({'Qid':qid,'Docid':doc,'Query' : query, 'Text' : nt, 'Label': 0}, ignore_index=True)
+            dt[q] = [qid,doc, query, nt, 0];
+            q+=1
         if i > limit:
-            return df
+            return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
         i += 1
-    return df
+    return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
 
 
 """
