@@ -100,6 +100,30 @@ def create_training(max_length_title, max_length_body, limit):
     return df
 
 
+def create_test(max_length_title, max_length_body, limit):
+    doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
+    top100 = load_top100("data/test/docleaderboard-top100.tsv")
+    queries = load_queries("data/test/docleaderboard-queries.tsv")
+
+    # want on format [qid,docid,query,text,label]
+    # use the relevant doc and one none relevant for training?
+    i = 0
+    df = pd.DataFrame(columns=['Qid','Docid','Query','Text','Label'])
+    for qid, docs in tqdm(top100.items()):
+        # get positive and negative labeled docids
+        for doc in docs:
+            # get text from query and doc
+            query = queries[qid]
+            text = load_document(doc_lookup[doc])
+            nt = text['title'][:max_length_title] + " " + text['body'][:max_length_body]
+            df = df.append({'Qid':qid,'Docid':doc,'Query' : query, 'Text' : nt, 'Label': 0}, ignore_index=True)
+        if i > limit:
+            return df
+        i += 1
+    return df
+
+
+"""
 def create_test(max_length_title, max_length_body):
     doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
     top100 = load_top100("data/dev/docdev-stopstem.xml_1.out")
@@ -113,3 +137,4 @@ def create_test(max_length_title, max_length_body):
             t = text['title'][:max_length_title] + " " + text['body'][:max_length_body]
             data.append([query, t])
     return data
+"""

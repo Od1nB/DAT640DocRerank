@@ -11,3 +11,8 @@ def compute_mrr(computed_documents,ground_truth):
                 break
     score = score/len(ground_truth)
     return score
+
+
+
+def store_result():
+    pass
