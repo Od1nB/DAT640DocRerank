@@ -61,8 +61,9 @@ def create_output(dataset,pred):
     lst = sorted(lst,key=lambda x: (x[0],x[5]),reverse=True)
     out = []
     line = ""
-    for row in lst:
-        line += str(row[0]) + " Q0 " + str(row[1]) + " " + str(row[5]) + " test1\n"
+    for i, row in enumerate(lst):
+        rank = (i%100)+1
+        line += str(row[0]) + " Q0 " + str(row[1]) + " " + str(rank) + " " + str(row[5]) + " test1\n"
     with open("test1.txt","w") as f:
         f.write(line)
 
@@ -88,9 +89,9 @@ if __name__ == "__main__":
     embeddings = TFAlbertModel.from_pretrained('albert-base-v2')
 
     # 367012
-    train = create_training(100, 500,100)
+    train = create_training(100, 500,1000)
 
-    train_X, train_y = create_train_cls(100,train)
+    train_X, train_y = create_train_cls(train.shape[0],train)
     #print(testing)
     #print(y)
 

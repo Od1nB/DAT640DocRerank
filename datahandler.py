@@ -23,7 +23,6 @@ def load_qrels(path):
         for line in file:
             data = line.split(" ")
             if str(data[0]) in res.keys():
-                print("test")
                 res[str(data[0])].append(data[2])
             else:
                 res[str(data[0])] = [data[2]]
@@ -104,14 +103,16 @@ def create_test(max_length_title, max_length_body, limit):
     doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
     top100 = load_top100("data/test/docleaderboard-top100.tsv")
     queries = load_queries("data/test/docleaderboard-queries.tsv")
-
+    qrels = load_qrels("data/test/2019qrels-docs.txt")
     # want on format [qid,docid,query,text,label]
     # use the relevant doc and one none relevant for training?
     i = 0
     q = 0
-    dt = [["","","","",0]] * 579300
+    dt = [["","","","",0]] * (len(qrels.keys())*100)#579300
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
+        if qid not in qrels.keys():
+            continue
         for doc in docs:
             # get text from query and doc
             query = queries[qid]
