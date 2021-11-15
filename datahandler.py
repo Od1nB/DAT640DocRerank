@@ -77,7 +77,7 @@ def create_training(max_length_title, max_length_body, limit):
     # use the relevant doc and one none relevant for training?
     i = 0
     di = 0
-    dl = [["","",0]]* len(top100.keys())
+    dl = [["","",0]] * (limit+2) #len(top100.keys())
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
         doc_neg = qrels[qid][0]
@@ -95,17 +95,22 @@ def create_training(max_length_title, max_length_body, limit):
         dl[di] = [query, nt, 0]
         dl[di+1] = [query, pt, 1]
         di += 2
-        if i > limit:
+        if di > limit:
             return pd.DataFrame(dl, columns=['Query','Text','Label'])
         i += 1
     return pd.DataFrame(dl, columns=['Query','Text','Label'])
 
 
-def create_test(max_length_title, max_length_body, limit):
+def create_test(max_length_title, max_length_body, limit,dev=True):
     doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
-    top100 = load_top100("data/test/docleaderboard-top100.tsv")
-    queries = load_queries("data/test/docleaderboard-queries.tsv")
-    qrels = load_qrels("data/test/2019qrels-docs.txt")
+    if dev:
+        top100 = load_top100("data/dev/docdev-stopstem.xml_1.out")
+        queries = load_queries("data/dev/queries.docdev.tsv")
+        qrels = load_qrels("data/dev/msmarco-docdev-qrels.tsv")
+    else:
+        top100 = load_top100("data/test/docleaderboard-top100.tsv")
+        queries = load_queries("data/test/docleaderboard-queries.tsv")
+        qrels = load_qrels("data/test/2019qrels-docs.txt")
     # want on format [qid,docid,query,text,label]
     # use the relevant doc and one none relevant for training?
     i = 0
