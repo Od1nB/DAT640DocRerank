@@ -153,11 +153,6 @@ if __name__ == "__main__":
     train_path = "models/trained_model"
 
     tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
-
-    train = create_training(1000, 3000, train_size)
-    print(train.shape)
-    print(train.tail())
-    print(train.head())
     if train_model:
 
         train = create_training(1000, 3000, train_size)
