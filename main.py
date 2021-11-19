@@ -2,7 +2,7 @@ import pandas as pd
 
 from evaluate import compute_mrr
 from tqdm import tqdm
-from transformers import AlbertTokenizer, TFAlbertModel, AdamW,TFAlbertForSequenceClassification, AdamWeightDecay
+from transformers import AlbertTokenizer, TFAlbertForSequenceClassification, AdamWeightDecay, logging
 from datahandler import load_top100, load_lookup, load_qrels, load_document, create_training, create_test
 
 import tensorflow_addons as tfa
@@ -11,6 +11,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
 
+logging.set_verbosity_error()
 def create_model():
     # seems like tokenizer adds [CLS] to beginning and [SEP] between text
     #encoded = tokenizer(train.loc[1,"Query"],train.loc[1,"Text"],padding='max_length',truncation=True,max_length=768,return_tensors='tf')
@@ -151,13 +152,13 @@ if __name__ == "__main__":
             print(e)
     """
     train_model = True
-    train_size = 10000
+    train_size = 250000 #250000 for   
     train_path = "models/trained_model"
 
     tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
     if train_model:
 
-        train = create_training(1000, 3000, train_size)
+        train = create_training(1000, 3500, train_size)
         train_X, train_y = create_train_encodings(train.shape[0], train)
         #print(train_X['input_ids'])
         #train_encoded = [tokenizer(train.loc[index, "Query"], train.loc[index, "Text"], padding='max_length', truncation=True,
@@ -174,7 +175,7 @@ if __name__ == "__main__":
         )
         '''
         model.compile(
-            optimizer=AdamWeightDecay(learning_rate=5e-5),
+            optimizer=AdamWeightDecay(learning_rate=1e-5),
             loss=tfa.losses.TripletSemiHardLoss(),
             metrics=['accuracy'],
         )
@@ -182,7 +183,8 @@ if __name__ == "__main__":
         model.save_pretrained(train_path)
     else:
         model = TFAlbertForSequenceClassification.from_pretrained(train_path)
-        testdf = create_test(100, 500, 5793,False) #5793
+        # testdf = create_test(1000, 3000, 5793, False) #5793
+        testdf = create_test(1000, 3000, 5793, True) #5793
         test = create_test_encodings(testdf.shape[0], testdf)
         scores_obj = model.predict(test)
         scores = [score[1] for score in scores_obj.logits]
