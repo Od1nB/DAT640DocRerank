@@ -2,8 +2,10 @@ import pandas as pd
 
 from evaluate import compute_mrr
 from tqdm import tqdm
-from transformers import AlbertTokenizer, TFAlbertModel, AdamW,TFAlbertForSequenceClassification
+from transformers import AlbertTokenizer, TFAlbertModel, AdamW,TFAlbertForSequenceClassification, AdamWeightDecay
 from datahandler import load_top100, load_lookup, load_qrels, load_document, create_training, create_test
+
+import tensorflow_addons as tfa
 
 import numpy as np
 import tensorflow as tf
@@ -49,9 +51,9 @@ def create_train_cls(size,dataset):
 def create_encoding(index,dataset):
     encoded = tokenizer(dataset.loc[index, "Query"], dataset.loc[index, "Text"], padding='max_length', truncation=True,
                         max_length=512, return_tensors='tf')
-    print(encoded['input_ids'])
-    print(encoded['attention_mask'])
-    print(encoded['token_type_ids'])
+    #print(encoded['input_ids'])
+    #print(encoded['attention_mask'])
+    #print(encoded['token_type_ids'])
     return encoded['input_ids'],encoded['attention_mask'], encoded['token_type_ids']
 
 
@@ -164,12 +166,19 @@ if __name__ == "__main__":
         #train_X['input_ids'] = train_encoded['input_ids']
         #train_y = train['Label'].tolist()
         model = TFAlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
+        '''
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=5e-5),
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=tf.metrics.SparseCategoricalAccuracy(),
         )
-        model.fit(x=train_X, y=train_y,batch_size=16, epochs=1)
+        '''
+        model.compile(
+            optimizer=AdamWeightDecay(learning_rate=5e-5),
+            loss=tfa.losses.TripletSemiHardLoss(),
+            metrics=['accuracy'],
+        )
+        model.fit(x=train_X, y=train_y,batch_size=8, epochs=1)
         model.save_pretrained(train_path)
     else:
         model = TFAlbertForSequenceClassification.from_pretrained(train_path)
