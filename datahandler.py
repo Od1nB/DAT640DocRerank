@@ -3,7 +3,6 @@ import csv
 import random
 import pandas as pd
 
-
 def load_queries(path):
     # returns: (dict) quid to query
     res = {}
@@ -28,7 +27,6 @@ def load_qrels(path):
                 res[str(data[0])] = [data[2]]
     return res
 
-
 def load_top100(path):
     # BM25 scored top 100
     # returns: (dict) qid to list of lists with docid, rank and score
@@ -42,7 +40,6 @@ def load_top100(path):
                 top[str(data[0])] = [data[2]]  # ,data[3], data[4]]]
     return top
 
-
 def load_lookup(path):
     # returns_ (dict) docid to offset
     res = {}
@@ -53,7 +50,6 @@ def load_lookup(path):
     tsv_file.close()
     return res
 
-
 def load_document(offset):
     # loads document at given offset
     # returns: (dict) with docid, title and body
@@ -61,11 +57,7 @@ def load_document(offset):
     tsv_file.seek(offset)
     document = tsv_file.readline().split("\t")
     return {"docid": document[0], "url": document[1], "title": document[2], "body": document[3]}
-    print(document[0])
-    print(document[2])
 
-
-# title and length should be max input of
 def create_training(max_length_title, max_length_body, limit):
     doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
     top100 = load_top100("data/train/msmarco-doctrain-top100")
@@ -74,10 +66,10 @@ def create_training(max_length_title, max_length_body, limit):
     random.seed(100)
 
     # want on format [query,text,label]
-    # use the relevant doc and one none relevant for training?
+    # use the relevant doc and one none relevant for training
     i = 0
     di = 0
-    dl = [["","",0]] * (limit) #len(top100.keys())
+    dl = [["","",0]] * (limit)
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
         doc_neg = qrels[qid][0]
@@ -97,7 +89,6 @@ def create_training(max_length_title, max_length_body, limit):
         di += 2
         if di >= limit:
             return pd.DataFrame(dl, columns=['Query','Text','Label'])
-
         i += 1
     return pd.DataFrame(dl, columns=['Query','Text','Label'])
 
@@ -113,7 +104,7 @@ def create_test(max_length_title, max_length_body, limit,dev=True):
         queries = load_queries("data/test/docleaderboard-queries.tsv")
         qrels = load_qrels("data/test/2019qrels-docs.txt")
     # want on format [qid,docid,query,text,label]
-    # use the relevant doc and one none relevant for training?
+    # use the relevant doc and one none relevant for training
     i = 0
     q = 0
     dt = [["","","","",0]] * (len(qrels.keys())*100)#579300
@@ -132,19 +123,4 @@ def create_test(max_length_title, max_length_body, limit,dev=True):
             return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
         i += 1
     return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
-
-"""
-def create_test(max_length_title, max_length_body):
-    doc_lookup = load_lookup("data/msmarco-docs-lookup.tsv")
-    top100 = load_top100("data/dev/docdev-stopstem.xml_1.out")
-    queries = load_queries("data/dev/queries.docdev.tsv")
-    random.seed(100)
-    data = []
-    for qid, docs in tqdm(top100.items()):
-        query = queries[qid]
-        for doc in docs:
-            text = load_document(doc_lookup[doc])
-            t = text['title'][:max_length_title] + " " + text['body'][:max_length_body]
-            data.append([query, t])
-    return data
-"""
+    
