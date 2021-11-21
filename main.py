@@ -1,16 +1,15 @@
-import pandas as pd
 
 from tqdm import tqdm
-from transformers import AlbertTokenizer, logging, TFAlbertForSequenceClassification
 from datahandler import create_training, create_test
+from transformers import AlbertTokenizer, logging, TFAlbertForSequenceClassification
 
+import pandas as pd
 import tensorflow_addons as tfa
-
 import numpy as np
 import tensorflow as tf
-
-from official import nlp
 import official.nlp.optimization
+from official import nlp
+
 
 logging.set_verbosity_error()
 
