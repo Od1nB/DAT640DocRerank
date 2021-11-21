@@ -2,7 +2,7 @@ import pandas as pd
 
 from evaluate import compute_mrr
 from tqdm import tqdm
-from transformers import AlbertTokenizer, TFAlbertForSequenceClassification, AdamWeightDecay, logging
+from transformers import AlbertTokenizer, logging, TFAlbertForSequenceClassification
 from datahandler import load_top100, load_lookup, load_qrels, load_document, create_training, create_test
 
 import tensorflow_addons as tfa
@@ -10,6 +10,9 @@ import tensorflow_addons as tfa
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
+
+from official import nlp
+import official.nlp.optimization
 
 logging.set_verbosity_error()
 def create_model():
@@ -51,7 +54,7 @@ def create_train_cls(size,dataset):
 # new test
 def create_encoding(index,dataset):
     encoded = tokenizer(dataset.loc[index, "Query"], dataset.loc[index, "Text"], padding='max_length', truncation=True,
-                        max_length=512, return_tensors='tf')
+                        max_length=256, return_tensors='tf')
     #print(encoded['input_ids'])
     #print(encoded['attention_mask'])
     #print(encoded['token_type_ids'])
@@ -59,9 +62,9 @@ def create_encoding(index,dataset):
 
 
 def create_train_encodings(size,dataset):
-    mat = np.empty([size,512],dtype=np.int32)
-    mat1 = np.empty([size, 512],dtype=np.int32)
-    mat2 = np.empty([size, 512],dtype=np.int32)
+    mat = np.empty([size,256],dtype=np.int32)
+    mat1 = np.empty([size, 256],dtype=np.int32)
+    mat2 = np.empty([size, 256],dtype=np.int32)
     y = dataset.loc[0:size-1,"Label"].to_numpy(dtype='uint8')
     for i in tqdm(range(size)):
         mat[i,:],mat1[i,:],mat2[i,:] =create_encoding(i,dataset)
@@ -70,9 +73,9 @@ def create_train_encodings(size,dataset):
 
 
 def create_test_encodings(size,dataset):
-    mat = np.empty([size,512],dtype=np.int32)
-    mat1 = np.empty([size, 512],dtype=np.int32)
-    mat2 = np.empty([size, 512],dtype=np.int32)
+    mat = np.empty([size,256],dtype=np.int32)
+    mat1 = np.empty([size, 256],dtype=np.int32)
+    mat2 = np.empty([size, 256],dtype=np.int32)
     for i in tqdm(range(size)):
         mat[i,:],mat1[i,:],mat2[i,:] =create_encoding(i,dataset)
     res = {"input_ids":mat,'attention_mask':mat1,'token_type_ids':mat2}
@@ -152,13 +155,13 @@ if __name__ == "__main__":
             print(e)
     """
     train_model = True
-    train_size = 250000 #250000 for   
+    train_size = 100000 #250000 for
     train_path = "models/trained_model"
 
     tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
     if train_model:
 
-        train = create_training(1000, 3500, train_size)
+        train = create_training(500, 2500, train_size)
         train_X, train_y = create_train_encodings(train.shape[0], train)
         #print(train_X['input_ids'])
         #train_encoded = [tokenizer(train.loc[index, "Query"], train.loc[index, "Text"], padding='max_length', truncation=True,
@@ -174,17 +177,21 @@ if __name__ == "__main__":
             metrics=tf.metrics.SparseCategoricalAccuracy(),
         )
         '''
+        optimizer = nlp.optimization.create_optimizer(
+            1e-7, num_train_steps=train_size, num_warmup_steps=600)
+        #optimizer=AdamWeightDecay(learning_rate=5e-6,weight_decay_rate=1e-2)
+
         model.compile(
-            optimizer=AdamWeightDecay(learning_rate=1e-5),
+            optimizer=optimizer,
             loss=tfa.losses.TripletSemiHardLoss(),
             metrics=['accuracy'],
         )
-        model.fit(x=train_X, y=train_y,batch_size=8, epochs=1)
+        model.fit(x=train_X, y=train_y,batch_size=16, epochs=1)
         model.save_pretrained(train_path)
     else:
         model = TFAlbertForSequenceClassification.from_pretrained(train_path)
         # testdf = create_test(1000, 3000, 5793, False) #5793
-        testdf = create_test(1000, 3000, 5793, True) #5793
+        testdf = create_test(500, 2500, 5793, False) #5793
         test = create_test_encodings(testdf.shape[0], testdf)
         scores_obj = model.predict(test)
         scores = [score[1] for score in scores_obj.logits]

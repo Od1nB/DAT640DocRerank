@@ -77,7 +77,7 @@ def create_training(max_length_title, max_length_body, limit):
     # use the relevant doc and one none relevant for training?
     i = 0
     di = 0
-    dl = [["","",0]] * (limit+2) #len(top100.keys())
+    dl = [["","",0]] * (limit) #len(top100.keys())
     for qid, docs in tqdm(top100.items()):
         # get positive and negative labeled docids
         doc_neg = qrels[qid][0]
@@ -95,8 +95,9 @@ def create_training(max_length_title, max_length_body, limit):
         dl[di] = [query, nt, 0]
         dl[di+1] = [query, pt, 1]
         di += 2
-        if di > limit:
+        if di >= limit:
             return pd.DataFrame(dl, columns=['Query','Text','Label'])
+
         i += 1
     return pd.DataFrame(dl, columns=['Query','Text','Label'])
 
@@ -127,7 +128,7 @@ def create_test(max_length_title, max_length_body, limit,dev=True):
             nt = text['title'][:max_length_title] + " " + text['body'][:max_length_body]
             dt[q] = [qid,doc, query, nt, 0];
             q+=1
-        if i > limit:
+        if i >= limit:
             return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
         i += 1
     return pd.DataFrame(dt, columns=['Qid','Docid','Query','Text','Label'])
