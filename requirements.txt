@@ -1,3 +1,9 @@
 tqdm
 tensorflow >= 2.5.0
 pandas
+tensorflow_addons
+transformers
+numpy
+tf-nightly
+tf-models-official
+tensorflow-text
