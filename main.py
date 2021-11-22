@@ -48,23 +48,6 @@ def create_output(dataset,pred):
     with open("test1.txt","w") as f:
         f.write(line)
 
-
-def create_classifier(train_X,train_y,test_X):
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Input(shape=(768,)))
-    model.add(tf.keras.layers.Dense(768, activation='relu'))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dense(128, activation='relu'))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dense(8, activation='relu'))
-    model.add(tf.keras.layers.BatchNormalization())
-    model.add(tf.keras.layers.Dense(1))
-    model.compile(optimizer="adam",loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),metrics=['accuracy'])
-    model.fit(x=train_X, y=train_y, epochs=10)
-    pred = model.predict(test_X)
-    return pred
-
-
 if __name__ == "__main__":
     train_model = False
     train_size = 100000 
